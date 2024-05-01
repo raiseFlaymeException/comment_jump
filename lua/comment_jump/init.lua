@@ -79,6 +79,4 @@ M.Setup = function(comments)
     end
 
 
--- return M
-
-M.Setup({{regex="TODO", color="red"}})
+return M
