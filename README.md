@@ -6,10 +6,7 @@ A neovim extension to highlight comments and jump to if from code
 
 - [Install](#install)
 - [Usage](#usage)
-	- [Generator](#generator)
-- [Badge](#badge)
-- [Example Readmes](#example-readmes)
-- [Related Efforts](#related-efforts)
+- [Example](#example)
 - [Maintainers](#maintainers)
 - [Contributing](#contributing)
 - [License](#license)
