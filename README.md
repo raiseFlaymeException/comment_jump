@@ -47,4 +47,4 @@ Feel free to contibute [Open an issue](https://github.com/raiseFlaymeException/c
 
 ## License
 
-[MIT](LICENSE) © Richard Littauer
+[ZLIB](LICENSE) © raiseFlaymeException
