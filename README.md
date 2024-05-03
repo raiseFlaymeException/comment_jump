@@ -28,7 +28,7 @@ require("comment_jump").Setup({{regex="TODO", color="red"}})
 - <p>regex</p> is a [regex vim style](https://vimregex.com/) to match for each comment 
 - <p>color</p> is a color from vim to color each comment 
 
-## Example Readmes
+## Example
 
 ```lua
 require("comment_jump").Setup({{regex="TODO", color="red"}, {regex="!", color="#6e6600"}})
