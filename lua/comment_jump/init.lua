@@ -24,7 +24,11 @@ local update = function(ns_id, comments, comments_reset)
         local ts_tree_root = ts_parser:parse()[1]:root()
 
         local file_type = vim.api.nvim_buf_get_option(0, "filetype")
-        local ts_query = vim.treesitter.query.parse(file_type, "[[(comment) @all]]")
+
+        local success, ts_query = pcall(vim.treesitter.query.parse, file_type, "[[(comment) @all]]")
+        if not success then
+            return
+        end
 
         -- get all lines of file
         local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
@@ -38,20 +42,18 @@ local update = function(ns_id, comments, comments_reset)
         -- read the parsed comment
         for id, node, metadata, match in ts_query:iter_captures(ts_tree_root, bufnr, 0, -1) do
             -- skip non comment
-            if (node:type()=="comment") then
-                local line_start, col_start, line_end, col_end = node:range()
-                for _, line in pairs(table.slice(lines, line_start+1, line_end+1)) do
-                    -- keep only the comment part
-                    local line_content = line:sub(col_start+1, col_end+1)
+            -- if (node:type()=="comment") then
+            local line_start, col_start, line_end, col_end = node:range()
+            for _, line in pairs(table.slice(lines, line_start+1, line_end+1)) do
+                -- keep only the comment part
+                local line_content = line:sub(col_start+1, col_end+1)
 
-                    for idx, comment in pairs(comments) do
-                        local regex = vim.regex(comment.regex)
-                        -- hilight it if string found
-                        if regex:match_str(line_content) then
-                            extid = vim.api.nvim_buf_set_extmark(0, ns_id, line_start, col_start, {end_col = col_end, hl_group = "comment_jump_"..idx})
-                            table.insert(comments_reset, {extid=extid, line_start=line_start, col_start=col_start, col_end=cold_end})
-                            -- vim.api.nvim_buf_add_highlight(0, ns_id, "comment_jump_"..idx, line_start, col_start, col_end)
-                        end
+                for idx, comment in pairs(comments) do
+                    local regex = vim.regex(comment.regex)
+                    -- hilight it if string found
+                    if regex:match_str(line_content) then
+                        extid = vim.api.nvim_buf_set_extmark(0, ns_id, line_start, col_start, {end_col = col_end, hl_group = "comment_jump_"..idx})
+                        table.insert(comments_reset, {extid=extid, line_start=line_start, col_start=col_start, col_end=cold_end})
                     end
                 end
             end
@@ -73,7 +75,7 @@ M.Setup = function(comments)
 
     -- create autogroup
     local augroup = vim.api.nvim_create_augroup("comment_jump", {clear = true})
-    vim.api.nvim_create_autocmd({ 'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'  }, {
+    vim.api.nvim_create_autocmd({'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'}, {
         group = augroup,
         callback = update(ns_id, comments, comments_reset)})
     end
