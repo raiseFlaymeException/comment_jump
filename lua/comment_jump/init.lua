@@ -1,6 +1,6 @@
 local M = {}
 
-function table.slice(tbl, first, last, step)
+local table_slice = function(tbl, first, last, step)
   local sliced = {}
 
   for i = first or 1, last or #tbl, step or 1 do
@@ -10,8 +10,18 @@ function table.slice(tbl, first, last, step)
   return sliced
 end
 
-local update = function(ns_id, comments, comments_reset)
-    return function()
+local comments = {}
+
+-- a record of comments line to check if we need to remove them
+local comments_reset = {};
+
+-- create namespace
+local ns_id = vim.api.nvim_create_namespace("comment_jump")
+
+-- create autogroup
+local augroup = vim.api.nvim_create_augroup("comment_jump", {clear = true})
+
+local update = function()
         -- get buffer
         local bufnr = vim.api.nvim_get_current_buf()
 
@@ -44,10 +54,8 @@ local update = function(ns_id, comments, comments_reset)
 
         -- read the parsed comment
         for id, node, metadata, match in ts_query:iter_captures(ts_tree_root, bufnr, 0, -1) do
-            -- skip non comment
-            -- if (node:type()=="comment") then
             local line_start, col_start, line_end, col_end = node:range()
-            for _, line in pairs(table.slice(lines, line_start+1, line_end+1)) do
+            for _, line in pairs(table_slice(lines, line_start+1, line_end+1)) do
                 -- keep only the comment part
                 local line_content = line:sub(col_start+1, col_end+1)
 
@@ -62,27 +70,41 @@ local update = function(ns_id, comments, comments_reset)
             end
         end
     end
+
+M.JumpTo = function(name)
+    -- TODO: put every file in the current folder and up that contain the comment <name> inside the quickfix list
+    inside = false
+    for _, comment in pairs(comments) do
+        for k, v in pairs(comment) do
+            if k == "regex" and v == name then
+                inside = true
+                break
+            end
+        end
+    end
+
+    if not inside then
+        vim.api.nvim_err_writeln("CommentJumpTo: \"" .. name .. "\" not in comments")
+    end
 end
 
-M.Setup = function(comments)
+M.Setup = function(com)
+    comments = com
+
     -- create hl groups 
     for idx, comment in pairs(comments) do
         vim.api.nvim_set_hl(0, "comment_jump_"..idx, {fg=comment.color})
     end
 
-    -- a record of comments line to check if we need to remove them
-    local comments_reset = {};
-
-    -- create namespace
-    local ns_id = vim.api.nvim_create_namespace("comment_jump")
-
-    -- create autogroup
-    local augroup = vim.api.nvim_create_augroup("comment_jump", {clear = true})
     vim.api.nvim_create_autocmd({'BufWinEnter', 'BufFilePost', 'BufWritePost', 'TextChanged', 'TextChangedI'}, {
         group = augroup,
-        callback = update(ns_id, comments, comments_reset)})
+        callback = update})
     end
 
--- to test if Setup works, uncomment this line, then do :so
--- M.Setup({{regex="TODO", color="red"}}) -- TODO: test
+-- TODO: remove comment part: -- TODO -> TODO so we can use ^TODO to only match comment that start with TODO (with optional trim spaces)
+-- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
+-- M.Setup({{regex="TODO", color="red"}, {regex="--", color="green"}}) -- TODO: test
+-- vim.keymap.set("n", "<leader>cj", function()
+--     M.JumpTo(vim.fn.input("comment to search: "))
+-- end)
 return M
