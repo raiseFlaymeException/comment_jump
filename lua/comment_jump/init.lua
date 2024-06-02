@@ -10,6 +10,8 @@ local table_slice = function(tbl, first, last, step)
   return sliced
 end
 
+local remove_spaces = true
+
 local comments = {}
 
 -- a record of comments line to check if we need to remove them
@@ -35,7 +37,7 @@ local update = function()
 
         local file_type = vim.api.nvim_buf_get_option(bufnr, "filetype")
 
-        local success, ts_query = pcall(vim.treesitter.query.parse, file_type, "[[(comment) @all]]")
+        local success, ts_query = pcall(vim.treesitter.query.parse, file_type, "[[(comment_content) @all]]")
         if not success then
             return
         end
@@ -57,7 +59,14 @@ local update = function()
             local line_start, col_start, line_end, col_end = node:range()
             for _, line in pairs(table_slice(lines, line_start+1, line_end+1)) do
                 -- keep only the comment part
-                local line_content = line:sub(col_start+1, col_end+1)
+
+                col_start_off = 1
+                if remove_spaces then
+                    if line:sub(col_start+1, col_start+1) == " " then
+                        col_start_off = 2
+                    end
+                end
+                local line_content = line:sub(col_start+col_start_off, col_end+1)
 
                 for idx, comment in pairs(comments) do
                     local regex = vim.regex(comment.regex)
@@ -88,8 +97,11 @@ M.JumpTo = function(name)
     end
 end
 
-M.Setup = function(com)
-    comments = com
+M.Setup = function(setup)
+    if setup.remove_spaces == false then
+        remove_spaces = false
+    end
+    comments = setup.comments
 
     -- create hl groups 
     for idx, comment in pairs(comments) do
@@ -103,7 +115,11 @@ M.Setup = function(com)
 
 -- TODO: remove comment part: -- TODO -> TODO so we can use ^TODO to only match comment that start with TODO (with optional trim spaces)
 -- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
--- M.Setup({{regex="TODO", color="red"}, {regex="--", color="green"}}) -- TODO: test
+-- M.Setup({
+--     comments={
+--         {regex="^TODO.*$", color="red"}
+--     }
+-- }) -- TODO: test
 -- vim.keymap.set("n", "<leader>cj", function()
 --     M.JumpTo(vim.fn.input("comment to search: "))
 -- end)
