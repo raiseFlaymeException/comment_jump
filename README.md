@@ -28,7 +28,7 @@ require("comment_jump").Setup({
 ```
 
 - <p>regex</p> is a [regex vim style](https://vimregex.com/) to match for each comment 
-- <p>color</p> is a color from vim to color each comment 
+- <p>color</p> is a color from vim to color each comment (see: https://codeyarns.com/tech/2011-07-29-vim-chart-of-color-names.html)
 
 ## Example
 
