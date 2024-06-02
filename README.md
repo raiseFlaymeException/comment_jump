@@ -22,7 +22,9 @@ use 'raiseFlaymeException/comment_jump'
 
 in your after folder
 ```lua
-require("comment_jump").Setup({{regex="TODO", color="red"}})
+require("comment_jump").Setup({
+    comments={{regex="TODO", color="red"}}
+})
 ```
 
 - <p>regex</p> is a [regex vim style](https://vimregex.com/) to match for each comment 
@@ -31,7 +33,13 @@ require("comment_jump").Setup({{regex="TODO", color="red"}})
 ## Example
 
 ```lua
-require("comment_jump").Setup({{regex="TODO", color="red"}, {regex="!", color="#6e6600"}})
+require("comment_jump").Setup({
+    remove_spaces = false, -- don't remove the spaces after the comment (example: -- TODO won't work whereas --TODO will)
+    comments={
+        {regex="^TODO.*$", color="red"}, -- match any comment starting with TODO
+        {regex="!", color="#6e6600"}
+    } -- list of comment to hilight in color <color>
+})
 ```
 
 ## Maintainers
