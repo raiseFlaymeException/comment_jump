@@ -10,6 +10,21 @@ local table_slice = function(tbl, first, last, step)
   return sliced
 end
 
+local language_comment = {
+    c    = {"^//", "^/%*", "%*/$"},
+    h    = {"^//", "^/%*", "%*/$"},
+    cpp  = {"^//", "^/%*", "%*/$"},
+    hpp  = {"^//", "^/%*", "ù*/$"},
+
+    lua  = {"^%-%-"},
+    py   = {"^#"},
+
+    html = {"^<!%-%-", "%-%->$"},
+    css  = {"^/%*", "%*/$"},
+    js   = {"^//", "^/%*", "%*/$"},
+}
+
+
 local remove_spaces = true
 
 local comments = {}
@@ -37,7 +52,7 @@ local update = function()
 
         local file_type = vim.api.nvim_buf_get_option(bufnr, "filetype")
 
-        local success, ts_query = pcall(vim.treesitter.query.parse, file_type, "[[(comment_content) @all]]")
+        local success, ts_query = pcall(vim.treesitter.query.parse, file_type, "[[(comment) @all]]")
         if not success then
             return
         end
@@ -59,14 +74,18 @@ local update = function()
             local line_start, col_start, line_end, col_end = node:range()
             for _, line in pairs(table_slice(lines, line_start+1, line_end+1)) do
                 -- keep only the comment part
-
-                col_start_off = 1
-                if remove_spaces then
-                    if line:sub(col_start+1, col_start+1) == " " then
-                        col_start_off = 2
+                local line_content = line:sub(col_start+1, col_end+1)
+                to_remove_com = language_comment[file_type]
+                if to_remove_com ~= nil then
+                    for _, reg in pairs(language_comment[file_type]) do
+                        line_content = line_content:gsub(reg, "")
                     end
                 end
-                local line_content = line:sub(col_start+col_start_off, col_end+1)
+                if remove_spaces then
+                    if line_content:sub(1, 1) == " " then
+                        line_content = line_content:sub(2)
+                    end
+                end
 
                 for idx, comment in pairs(comments) do
                     local regex = vim.regex(comment.regex)
@@ -113,7 +132,7 @@ M.Setup = function(setup)
         callback = update})
     end
 
--- TODO: remove comment part: -- TODO -> TODO so we can use ^TODO to only match comment that start with TODO (with optional trim spaces)
+-- TODO: support for multiline comment
 -- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
 -- M.Setup({
 --     comments={
