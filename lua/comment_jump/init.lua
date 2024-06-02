@@ -84,5 +84,5 @@ M.Setup = function(comments)
     end
 
 -- to test if Setup works, uncomment this line, then do :so
-M.Setup({{regex="TODO", color="red"}}) -- TODO: test
+-- M.Setup({{regex="TODO", color="red"}}) -- TODO: test
 return M
