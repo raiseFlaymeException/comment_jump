@@ -23,7 +23,7 @@ local update = function(ns_id, comments, comments_reset)
 
         local ts_tree_root = ts_parser:parse()[1]:root()
 
-        local file_type = vim.api.nvim_buf_get_option(0, "filetype")
+        local file_type = vim.api.nvim_buf_get_option(bufnr, "filetype")
 
         local success, ts_query = pcall(vim.treesitter.query.parse, file_type, "[[(comment) @all]]")
         if not success then
@@ -33,11 +33,14 @@ local update = function(ns_id, comments, comments_reset)
         -- get all lines of file
         local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
-        -- reset old_comments
-        for _, comment in pairs(comments_reset) do
-            vim.api.nvim_buf_set_extmark(0, ns_id, comment.line_start, comment.col_start, {end_col = comment.col_end, hl_group = 0, id=comment.extid})
+        if comments_reset[bufnr] == nil then
+            comments_reset[bufnr] = {}
         end
-        comments_reset = {}
+        -- reset old_comments
+        for _, comment in pairs(comments_reset[bufnr]) do
+            vim.api.nvim_buf_set_extmark(bufnr, ns_id, comment.line_start, comment.col_start, {end_col = comment.col_end, hl_group = 0, id=comment.extid})
+        end
+        comments_reset[bufnr] = {}
 
         -- read the parsed comment
         for id, node, metadata, match in ts_query:iter_captures(ts_tree_root, bufnr, 0, -1) do
@@ -52,7 +55,7 @@ local update = function(ns_id, comments, comments_reset)
                     local regex = vim.regex(comment.regex)
                     -- hilight it if string found
                     if regex:match_str(line_content) then
-                        extid = vim.api.nvim_buf_set_extmark(0, ns_id, line_start, col_start, {end_col = col_end, hl_group = "comment_jump_"..idx})
+                        extid = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_start, col_start, {end_col = col_end, hl_group = "comment_jump_"..idx})
                         table.insert(comments_reset, {extid=extid, line_start=line_start, col_start=col_start, col_end=cold_end})
                     end
                 end
@@ -80,5 +83,6 @@ M.Setup = function(comments)
         callback = update(ns_id, comments, comments_reset)})
     end
 
-
+-- to test if Setup works, uncomment this line, then do :so
+M.Setup({{regex="TODO", color="red"}}) -- TODO: test
 return M
