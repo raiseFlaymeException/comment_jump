@@ -48,7 +48,8 @@ require("comment_jump").Setup({
 
 ## Contributing
 
-Feel free to contibute [Open an issue](https://github.com/raiseFlaymeException/comment_jump/issues/new) or submit PRs.
+Feel free to contibute [Open an issue](https://github.com/raiseFlaymeException/comment_jump/issues/new) or submit PRs
+(especially for language support).
 
 ## License
 

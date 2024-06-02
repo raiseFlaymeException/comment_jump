@@ -10,6 +10,7 @@ local table_slice = function(tbl, first, last, step)
   return sliced
 end
 
+-- NOTE: don't forget to escape the characters with % (see https://help.interfaceware.com/v6/lua-magic-characters)
 local language_comment = {
     c    = {"^//", "^/%*", "%*/$"},
     h    = {"^//", "^/%*", "%*/$"},
