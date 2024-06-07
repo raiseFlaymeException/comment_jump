@@ -23,7 +23,7 @@ use 'raiseFlaymeException/comment_jump'
 in your after folder
 ```lua
 require("comment_jump").Setup({
-    comments={{regex="TODO", color="red"}}
+    comments={{regex="TODO", fg="red"}}
 })
 ```
 
@@ -36,8 +36,8 @@ require("comment_jump").Setup({
 require("comment_jump").Setup({
     remove_spaces = false, -- don't remove the spaces after the comment (example: -- TODO won't work whereas --TODO will)
     comments={
-        {regex="^TODO.*$", color="red"}, -- match any comment starting with TODO
-        {regex="!", color="#6e6600"}
+        {regex="^TODO.*$", fg="red"}, -- match any comment starting with TODO
+        {regex="!", fg="#6e6600", bg="blue"}
     } -- list of comment to hilight in color <color>
 })
 ```
