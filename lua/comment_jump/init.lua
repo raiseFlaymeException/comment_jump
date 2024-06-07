@@ -136,12 +136,12 @@ M.Setup = function(setup)
 -- TODO: support for multiline comment
 -- TODO: bug on comment
 -- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
-M.Setup({
-    comments={
-        {regex="^TODO.*$", fg="red"}
-    }
-}) -- TODO: test
-vim.keymap.set("n", "<leader>cj", function()
-    M.JumpTo(vim.fn.input("comment to search: "))
-end)
+-- M.Setup({
+--     comments={
+--         {regex="^TODO.*$", fg="red"}
+--     }
+-- }) -- TODO: test
+-- vim.keymap.set("n", "<leader>cj", function()
+--     M.JumpTo(vim.fn.input("comment to search: "))
+-- end)
 return M
