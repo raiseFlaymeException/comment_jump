@@ -65,12 +65,7 @@ local update = function()
         comments_reset[bufnr] = {}
     end
     -- reset old_comments
-    for _, comment in pairs(comments_reset[bufnr]) do
-        vim.api.nvim_buf_set_extmark(bufnr, ns_id, 
-            comment.line_start, comment.col_start, 
-            {end_col = comment.col_end, hl_group = 0, id=comment.extid})
-    end
-    comments_reset[bufnr] = {}
+    vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1);
 
     -- read the parsed comment
     for id, node, metadata, match in ts_query:iter_captures(ts_tree_root, bufnr, 0, -1) do
@@ -91,11 +86,10 @@ local update = function()
             end
             for idx, comment in pairs(comments) do
                 local regex = vim.regex(comment.regex)
-                -- print(line_content, regex:match_str(line_content) == nil)
                 -- hilight it if string found
                 if regex:match_str(line_content) then
                     extid = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_start, col_start, {end_col = col_end, hl_group = "comment_jump_"..idx})
-                    table.insert(comments_reset, {extid=extid, line_start=line_start, col_start=col_start, col_end=cold_end})
+                    table.insert(comments_reset[bufnr], {extid=extid, line_start=line_start, col_start=col_start, col_end=col_end})
                 end
             end
         end
@@ -136,7 +130,6 @@ M.Setup = function(setup)
     end
 
 -- TODO: support for multiline comment
--- TODO: bug on comment
 -- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
 -- M.Setup({
 --     comments={
