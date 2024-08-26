@@ -33,12 +33,27 @@ require("comment_jump").setup({
 ## Example
 
 ```lua
+{
+    "raiseFlaymeException/comment_jump",
+    config = {
+        remove_spaces = false, -- don't remove the spaces after the comment (example: -- TODO won't work whereas --TODO will)
+        comments={
+            {regex="^TODO.*$", fg="red"}, -- match any comment starting with TODO
+            {regex="!", fg="#6e6600", bg="blue"}
+        } -- list of comment to hilight in color <color>
+    },
+    dependencies = { { "nvim-treesitter/nvim-treesitter" } }
+},
+```
+
+```lua
 require("comment_jump").setup({
     remove_spaces = false, -- don't remove the spaces after the comment (example: -- TODO won't work whereas --TODO will)
     comments={
         {regex="^TODO.*$", fg="red"}, -- match any comment starting with TODO
         {regex="!", fg="#6e6600", bg="blue"}
-    } -- list of comment to hilight in color <color>
+    }, -- list of comment to hilight in color <color>
+    requires = { {"nvim-treesitter/nvim-treesitter"} }
 })
 ```
 
