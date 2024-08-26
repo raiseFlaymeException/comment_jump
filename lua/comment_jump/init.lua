@@ -113,7 +113,7 @@ M.JumpTo = function(name)
     end
 end
 
-M.Setup = function(setup)
+M.setup = function(setup)
     if setup.remove_spaces == false then
         remove_spaces = false
     end
@@ -131,7 +131,7 @@ M.Setup = function(setup)
 
 -- TODO: support for multiline comment
 -- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
--- M.Setup({
+-- M.setup({
 --     comments={
 --         {regex="^TODO.*$", fg="red"}
 --     }

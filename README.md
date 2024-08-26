@@ -22,7 +22,7 @@ use 'raiseFlaymeException/comment_jump'
 
 in your after folder
 ```lua
-require("comment_jump").Setup({
+require("comment_jump").setup({
     comments={{regex="TODO", fg="red"}}
 })
 ```
@@ -33,7 +33,7 @@ require("comment_jump").Setup({
 ## Example
 
 ```lua
-require("comment_jump").Setup({
+require("comment_jump").setup({
     remove_spaces = false, -- don't remove the spaces after the comment (example: -- TODO won't work whereas --TODO will)
     comments={
         {regex="^TODO.*$", fg="red"}, -- match any comment starting with TODO
