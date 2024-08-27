@@ -35,7 +35,7 @@ require("comment_jump").setup({
 ```lua
 {
     "raiseFlaymeException/comment_jump",
-    config = {
+    opts = {
         remove_spaces = false, -- don't remove the spaces after the comment (example: -- TODO won't work whereas --TODO will)
         comments={
             {regex="^TODO.*$", fg="red"}, -- match any comment starting with TODO
