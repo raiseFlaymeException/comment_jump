@@ -30,9 +30,6 @@ local remove_spaces = true
 
 local comments = {}
 
--- a record of comments line to check if we need to remove them
-local comments_reset = {};
-
 -- create namespace
 local ns_id = vim.api.nvim_create_namespace("comment_jump")
 
@@ -61,9 +58,6 @@ local update = function()
     -- get all lines of file
     local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 
-    if comments_reset[bufnr] == nil then
-        comments_reset[bufnr] = {}
-    end
     -- reset old_comments
     vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1);
 
@@ -88,10 +82,8 @@ local update = function()
                 local regex = vim.regex(comment.regex)
                 -- hilight it if string found
                 if regex:match_str(line_content) then
-                    local extid = vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_start, col_start,
-                        { end_col = col_end, hl_group = "comment_jump_" .. idx })
-                    table.insert(comments_reset[bufnr],
-                        { extid = extid, line_start = line_start, col_start = col_start, col_end = col_end })
+                    vim.api.nvim_buf_set_extmark(bufnr, ns_id, line_start, col_start,
+                        { end_col = col_end, end_row = line_end, hl_group = "comment_jump_" .. idx })
                 end
             end
         end
@@ -133,7 +125,6 @@ M.setup = function(setup)
     })
 end
 
--- TODO: support for multiline comment
 -- to test if Setup works, uncomment the next lines, then do :so and do a small change to the file
 -- M.setup({
 --     comments={
